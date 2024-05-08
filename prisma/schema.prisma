@@ -1,0 +1,223 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+
+model User {
+  id             String   @default(cuid()) @id
+  name       String?
+  email          String?   @unique
+  role           String?
+  action         Boolean?
+  address        String?
+  position       String?
+  isLeader       Boolean?
+  permission     String?
+  emailVerified  String?
+  phone          String?
+  image          String?
+  hashedPassword String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  accounts Account[]
+  products Product[]
+  transaction Transaction[]
+  mail Mail[]
+  comment Comment[]
+  relly Relly[]
+  tempMail TempMail[]
+}
+
+model Account {
+  id                String  @default(cuid()) @id
+  userId            String  
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? 
+  access_token      String? 
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+
+
+model Product {
+  id String @default(cuid()) @id
+  userId String
+  discountId String[]
+  title String?
+  brand String?
+  image String?
+  category String?
+  weight Int?
+  location String?
+  description String?
+  defaultPrice Int?
+  margin Int?
+  tax Int?
+  tag String[]
+  unit String?
+  transportation String[]
+  salePrice Int?
+  stock Int?
+  color String[]
+  size String[]
+  designFor String[]
+  created_at DateTime @default(now())
+
+  //transaction Transaction[]
+  
+
+  user User @relation(fields: [userId], references: [id],onDelete: Cascade)
+  //discount Discount @relation(fields: [discountId],references: [id],onDelete: Cascade)
+}
+
+model Transaction {
+  id String @default(cuid()) @id
+  userId String
+  discountId String
+  productId String[]
+  status String?
+  date DateTime @default(now())
+  amount Int?
+  totalPrice Int?
+  transportation String?
+  type String?
+  bank String?
+
+   user User @relation(fields: [userId], references: [id],onDelete: Cascade)
+  //product Product @relation(fields: [productId],references: [id],onDelete: Cascade)
+  discount Discount @relation(fields: [discountId], references: [id],onDelete: Cascade)
+}
+
+model Discount {
+  id String @default(cuid()) @id
+  startDate DateTime @default(now())
+  endDate DateTime @default(now())
+  title String?
+  description String?
+  type String?
+  percent Int?
+  code String?
+  count Int?
+  condition String?
+  created_at DateTime @default(now())
+  transaction Transaction[]
+  //product Product[]
+}
+
+model Mail {
+  id String @default(cuid()) @id
+  userId String
+  mailSend String?
+  userName String?
+  userImage String?
+  content String?
+  mailRecive String?
+  role String?
+  supportBy String?
+  status String?
+  seen Boolean?
+  created_at DateTime @default(now())
+  user User @relation(fields: [userId], references: [id],onDelete: Cascade)
+}
+
+model TempMail {
+  id String @default(cuid()) @id
+  userId String
+  mailSend String?
+  userName String?
+  userImage String?
+  content String?
+  mailRecive String?
+  history Boolean?
+  seen Boolean?
+   created_at DateTime @default(now())
+  user User @relation(fields: [userId], references: [id],onDelete: Cascade)
+}
+
+model Comment {
+  id String  @default(cuid()) @id
+  userId String
+  userImage String?
+  userName String?
+  title String?
+  content String?
+  createdAt DateTime @default(now())
+  relly Relly[]
+  heart Heart[]
+  user User @relation(fields: [userId], references: [id],onDelete: Cascade)
+}
+model Relly {
+  id String  @default(cuid()) @id
+  commentId String
+  userId String
+  userImage String?
+  userName String?
+  title String?
+  content String?
+  createdAt DateTime @default(now())
+  heartRelly HeartReply[]
+  comment Comment @relation(fields: [commentId], references: [id],onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id],onDelete: Cascade)
+}
+
+model Heart {
+  id String @default(cuid()) @id
+  commentId String
+  userId String
+  userImage String?
+  userName String?
+  status String?
+  createdAt DateTime @default(now())
+  comment Comment @relation(fields: [commentId],references: [id],onDelete: Cascade)
+}
+model HeartReply {
+  id String @default(cuid()) @id
+  rellyId String
+  userId String
+  userImage String?
+  userName String?
+  createdAt DateTime @default(now())
+  status String?
+  relly Relly @relation(fields: [rellyId],references: [id],onDelete: Cascade)
+}
+
+model Notify {
+  id String @default(cuid()) @id
+  userId String
+  commentId String
+  userName String?
+  userImage String?
+  date String?
+  createdAt DateTime @default(now())
+  mark Boolean?
+  type String?
+}
+
+model History {
+  id String @default(cuid()) @id
+  userId String
+  created_at DateTime @default(now())
+  title String?
+  type String?
+  link String?
+}
